@@ -14,7 +14,7 @@ function App() {
   authService.getCurrentUser()
   .then((userData)=>{
     if(userData){
-      dispatch(login({userData}));
+      dispatch(login(userData));
     }
     else{
       dispatch(logout());
@@ -26,7 +26,7 @@ function App() {
   },[])
 
   return !loading?(
-    <div className='w-100 min-h-screen flex flex-wrap content-between bg-gray-400'>
+    <div className='w-full min-h-screen flex flex-wrap content-between bg-gray-400'>
       <div className='w-full block'>
         <Header/>
         <main>
@@ -35,7 +35,7 @@ function App() {
         <Footer/>
       </div>
     </div>
-  ) : (<></>)
+  ) : (<>Loading...</>)
 }
 
 export default App
