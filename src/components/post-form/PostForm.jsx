@@ -4,6 +4,8 @@ import {Button, Input, Select, RTE} from '../index'
 import service from '../../appwrite/config'
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Lottie from "lottie-react";
+import AnimatedImage from '../Lotti'
 
 function PostForm({post}) {
     const {register, handleSubmit, watch, setValue, control, getValues} = useForm({
@@ -17,7 +19,7 @@ function PostForm({post}) {
 
     const navigate = useNavigate();
     const userData = useSelector((state) => (state.auth.userData));
-
+    console.log("userData:", userData)
     const submit = async(data) => {
         if(post){
             const file = data.image[0]? service.uploadFile(data.image[0]) : null
@@ -52,8 +54,10 @@ function PostForm({post}) {
             return value
             .trim()
             .toLowerCase()
-            .replace(/^[a-zA-Z\d\s]+/g,'-')
-            .replace(/\s/g, '-')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
         }
         return ''
     }, [])
@@ -70,53 +74,80 @@ function PostForm({post}) {
     }, [watch, slugTransform, setValue])
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
-            <div className="w-2/3 px-2">
-                <Input
-                    label="Title :"
-                    placeholder="Title"
-                    className="mb-4"
-                    {...register("title", { required: true })}
-                />
-                <Input
-                    label="Slug :"
-                    placeholder="Slug"
-                    className="mb-4"
-                    {...register("slug", { required: true })}
-                    onInput={(e) => {
-                        setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
-                    }}
-                />
-                <RTE label="Content :" name="content" control={control} defaultValue={getValues("content")} />
-            </div>
-            <div className="w-1/3 px-2">
-                <Input
-                    label="Featured Image :"
-                    type="file"
-                    className="mb-4"
-                    accept="image/png, image/jpg, image/jpeg, image/gif"
-                    {...register("image", { required: !post })}
-                />
-                {post && (
-                    <div className="w-full mb-4">
-                        <img
-                            src={appwriteService.getFilePreview(post.featuredImage)}
-                            alt={post.title}
-                            className="rounded-lg"
-                        />
-                    </div>
-                )}
-                <Select
-                    options={["active", "inactive"]}
-                    label="Status"
-                    className="mb-4"
-                    {...register("status", { required: true })}
-                />
-                <Button type="submit" bgColor={post ? "bg-green-500" : undefined} className="w-full">
-                    {post ? "Update" : "Submit"}
-                </Button>
-            </div>
-        </form>
+<form
+  onSubmit={handleSubmit(submit)}
+  className="bg-white rounded-xl shadow-xl overflow-hidden md:flex"
+>
+  {/* Left: Form Fields */}
+  <div className="w-full md:w-2/3 p-6 space-y-6">
+    <div className="space-y-4">
+      <Input
+        label="Title"
+        placeholder="Enter the post title"
+        className="w-full"
+        {...register("title", { required: true })}
+      />
+      <Input
+        label="Slug"
+        placeholder="Auto-generated from title"
+        className="w-full"
+        {...register("slug", { required: true })}
+        onInput={(e) =>
+          setValue("slug", slugTransform(e.currentTarget.value), {
+            shouldValidate: true,
+          })
+        }
+      />
+      <RTE
+        label="Content"
+        name="content"
+        control={control}
+        defaultValue={getValues("content")}
+      />
+    </div>
+
+    <div className="flex flex-col md:flex-row md:space-x-4 space-y-6 md:space-y-0">
+      <div className="w-full md:w-1/2 space-y-4">
+        <Input
+          label="Featured Image"
+          type="file"
+          className="w-full"
+          accept="image/png, image/jpg, image/jpeg, image/gif"
+          {...register("image", { required: !post })}
+        />
+        {post && (
+          <img
+            src={service.getFilePreview(post.featuredImage)}
+            alt={post.title}
+            className="rounded-lg shadow border border-gray-200"
+          />
+        )}
+      </div>
+
+      <div className="w-full md:w-1/2 space-y-4">
+        <Select
+          options={["active", "inactive"]}
+          label="Status"
+          className="w-full"
+          {...register("status", { required: true })}
+        />
+        <Button
+          type="submit"
+          bgColor={post ? "bg-green-500" : "bg-blue-600"}
+          className="w-full hover:brightness-110 transition-all duration-200"
+        >
+          {post ? "Update Post" : "Create Post"}
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  {/* Right: SVG Illustration */}
+  <div className="hidden md:flex md:w-1/3 bg-gradient-to-tr from-indigo-50 to-pink-100 items-center justify-center p-6">
+    <AnimatedImage/>
+  </div>
+</form>
+
   )
 }
 

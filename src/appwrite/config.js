@@ -16,6 +16,7 @@ class Service{
     }
 
     async createPost({title, slug, content, featuredImage, status, userId}){
+        console.log("title:", title, " slug:", slug, " content:", content, " status:", status, " userId:", userId)
         try {
             return await this.databases.createDocument(
                 conf.appwriteDatabaseId,
@@ -30,6 +31,7 @@ class Service{
                 }
             )
         } catch (error) {
+            console.log("create post error")
             console.log(error);
         }
     }
@@ -118,14 +120,17 @@ class Service{
         }
     }
 
-    async getFilePreview(){
+    async getFilePreview(fileId){
+        console.log("file id:", fileId)
         try {
-            return this.bucket.getFilePreview(
+            const file = await this.bucket.getFileView(
                 conf.appwriteBucketId,
                 fileId
             )
+            console.log("preview file:", file);
+            return file;
         } catch (error) {
-            console.log(error);
+            console.log("file preview error:", error);
             
         }
     }

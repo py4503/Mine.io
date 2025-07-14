@@ -30,13 +30,17 @@ async createAccount({email, password, name}){
 
 async login({email, password}){
     try {
-        return await this.account.createEmailPasswordSession(email, password);
+        const v = await this.account.createEmailPasswordSession(email, password);
+        console.log("login successful")
+        return v;
     } catch (error) {
+        console.log("whatever error")
         throw error;
     }
 }
 
 async getCurrentUser(){
+    console.log("account:", this.account)
     try {
         const user = await this.account.get();
         console.log("my user", user);
